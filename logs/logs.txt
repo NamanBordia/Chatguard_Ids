@@ -1,0 +1,85 @@
+timestamp | username | message | threat_type | severity | action_taken
+2026-04-04 02:35:10 | alice | <joined> | none | none | accepted
+2026-04-04 02:35:10 | alice | hello test | none | none | forwarded
+2026-04-04 02:35:10 | alice | <left> | none | none | disconnect
+2026-04-04 02:40:35 | bob | <joined> | none | none | accepted
+2026-04-04 02:41:34 | bob | hii | none | none | forwarded
+2026-04-04 02:43:32 | alice | <joined> | none | none | accepted
+2026-04-04 02:43:39 | alice | hii bob | none | none | forwarded
+2026-04-04 02:43:58 | bob | hii alice | none | none | forwarded
+2026-04-04 02:44:27 | alice | alice you are so dumb | none | none | forwarded
+2026-04-04 02:44:47 | bob | why | none | none | forwarded
+2026-04-04 02:45:01 | alice | because i think you are mother fucker | none | none | forwarded
+2026-04-04 02:45:22 | alice | fuck you bob | none | none | forwarded
+2026-04-04 02:46:48 | alice | you are stupid | none | none | forwarded
+2026-04-04 02:48:44 | bob | quiet | none | none | forwarded
+2026-04-04 02:48:52 | bob | /quiet | none | none | forwarded
+2026-04-04 02:52:11 | alice | <joined> | none | none | accepted
+2026-04-04 02:52:48 | bob | <joined> | none | none | accepted
+2026-04-04 02:53:00 | alice | hii | none | none | forwarded
+2026-04-04 02:53:26 | alice | bob you are stupid | bullying | medium | blocked
+2026-04-04 02:53:49 | alice | mother fucker bob | none | none | forwarded
+2026-04-04 02:54:07 | alice | dumb bob | none | none | forwarded
+2026-04-04 17:26:50 | admin | <joined> | none | none | accepted
+2026-04-04 17:27:25 | alice | <joined> | none | none | accepted
+2026-04-04 17:27:52 | bob | <joined> | none | none | accepted
+2026-04-04 17:28:01 | bob | hii | none | none | forwarded
+2026-04-04 17:28:31 | alice | hello mother fucker | bullying | medium | blocked
+2026-04-04 17:29:56 | bob | hello baby , you are so hot | none | none | forwarded
+2026-04-04 17:30:06 | bob | i wanna kiss you | none | none | forwarded
+2026-04-04 17:30:18 | bob | i want to have sex with you | none | none | forwarded
+2026-04-04 17:30:26 | bob | i want to rape you | none | none | forwarded
+2026-04-04 17:30:46 | bob | bsdk | none | none | forwarded
+2026-04-04 17:30:56 | bob | fucker | none | none | forwarded
+2026-04-04 17:31:02 | bob | mother fucker | bullying | medium | blocked
+2026-04-04 17:33:06 | bob | i think you should kill yourself | bullying | high | blocked
+2026-04-04 17:49:38 | bob | Verify your bank password at http://tinyurl.com/secure-login | phishing | high | blocked
+2026-04-04 18:07:44 | naman | <joined> | none | none | accepted
+2026-04-04 18:08:32 | bob | <joined> | none | none | accepted
+2026-04-04 18:09:08 | naman | to=bob | hii | none | none | pending_approval
+2026-04-04 18:09:24 | naman | to=bob | hii | none | none | delivered_after_approval
+2026-04-04 18:10:19 | naman | to=bob | hello | none | none | delivered
+2026-04-04 18:17:34 | bob | to=naman | hii | none | none | pending_approval
+2026-04-04 18:17:49 | bob | to=naman | hii | none | none | delivered_after_approval
+2026-04-04 18:26:57 | naman | <joined> | none | none | accepted
+2026-04-04 18:27:53 | bob | <joined> | none | none | accepted
+2026-04-04 18:28:27 | bob | to=naman | hii | anomaly | high | blocked
+2026-04-04 18:29:10 | bob | to=naman | hii naman | anomaly | high | blocked
+2026-04-04 18:29:16 | bob | to=naman | hello | anomaly | high | blocked
+2026-04-04 18:31:36 | naman | <joined> | none | none | accepted
+2026-04-04 18:32:04 | bob | <joined> | none | none | accepted
+2026-04-04 18:32:37 | naman | to=bob | hii | anomaly | high | pending_approval_flagged
+2026-04-04 18:38:49 | naman | to=bob | hii | anomaly | high | delivered_after_approval
+2026-04-04 20:29:11 | naman | <joined> | none | none | accepted
+2026-04-04 20:29:31 | bob | <joined> | none | none | accepted
+2026-04-04 20:29:54 | bob | to=naman | hii | none | none | pending_approval
+2026-04-04 20:30:08 | bob | to=naman | hii | none | none | delivered_after_approval
+2026-04-04 20:30:28 | bob | to=naman | how are you | none | none | delivered
+2026-04-04 20:31:17 | bob | to=naman | heres a sale and join it using this link | none | none | delivered
+2026-04-04 20:31:42 | bob | to=naman | you are such a useless idiot | cyberbullying | high | blocked
+2026-04-04 20:33:42 | bob | to=naman | kill yourself you worthless loser | cyberbullying | high | blocked
+2026-04-04 20:34:03 | bob | to=naman | you are stupid idiot and i hate you | cyberbullying | high | blocked
+2026-04-04 20:34:26 | bob | to=naman | urgent bank verify password now at http://bit.ly/security-check | phishing | medium | delivered_flagged
+2026-04-04 20:34:54 | bob | to=naman | shut up moron | cyberbullying | high | blocked
+2026-04-04 20:35:26 | bob | to=naman | hello, are you available for meeting | none | none | delivered
+2026-04-04 20:35:50 | bob | to=naman | bob urgent bank verify password now at http://bit.ly/security-check | phishing | medium | delivered_flagged
+2026-04-07 11:04:41 | naman | <joined> | none | none | accepted
+2026-04-07 11:05:02 | bob | <joined> | none | none | accepted
+2026-04-07 11:05:12 | bob | to=naman | hii | none | none | pending_approval
+2026-04-07 11:05:32 | bob | to=naman | hii | none | none | delivered_after_approval
+2026-04-07 11:06:05 | bob | to=naman | hii naman how are u | none | none | delivered
+2026-04-07 11:06:27 | bob | to=naman | u are mother fucker | cyberbullying | high | blocked
+2026-04-07 11:08:23 | bob | to=naman | you are stupid | cyberbullying | high | blocked
+2026-04-07 11:08:43 | bob | to=naman | you are idiot | cyberbullying | high | blocked
+2026-04-07 11:08:50 | bob | to=naman | you are brain less | cyberbullying | high | blocked
+2026-04-07 11:09:53 | bob | to=naman | go this this website for lucky dray www.bitlay.com | phishing,spam | low | delivered_flagged
+2026-04-08 10:11:56 | naman | <joined> | none | none | accepted
+2026-04-08 10:12:10 | bob | <joined> | none | none | accepted
+2026-04-08 10:15:04 | bob | to=naman | hii | none | none | pending_approval
+2026-04-08 10:16:24 | bob | to=naman | hii naman | none | none | pending_approval
+2026-04-08 10:16:53 | bob | to=naman | hii naman | none | none | delivered_after_approval
+2026-04-08 11:23:34 | naman | <joined> | none | none | accepted
+2026-04-08 11:23:49 | bob | <joined> | none | none | accepted
+2026-04-08 11:24:04 | bob | to=naman | hii | none | none | pending_approval
+2026-04-08 11:24:31 | bob | to=naman | hii | none | none | pending_approval
+2026-04-08 11:24:44 | bob | to=naman | hii | none | none | delivered_after_approval
