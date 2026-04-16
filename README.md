@@ -5,6 +5,7 @@ A Python socket-based client-server chat project where the server acts as an IDS
 ## Features
 
 - TCP socket communication (no Flask/HTTP)
+- AES-256-GCM encrypted client-server payloads (message confidentiality + integrity)
 - Multi-client server using threading
 - SQLite user database with secure password hashing (PBKDF2-HMAC)
 - Full user CRUD operations (create, read/list, update password, delete)
@@ -54,7 +55,8 @@ project/
 ## Requirements
 
 - Python 3.9+
-- Standard library only (no external dependency required)
+- `pycryptodome` (`pip install pycryptodome`)
+- `streamlit` (`pip install streamlit`)
 
 ## Default Users
 
@@ -67,21 +69,31 @@ Seeded automatically into SQLite (`data/users.db`) on first run:
 
 ## Run Instructions
 
-1. Start server first:
+1. Set a shared AES secret for both server and every client terminal (recommended):
+
+```bash
+# Option A: passphrase (derived to AES-256 key via PBKDF2)
+set CHAT_AES_PASSPHRASE=change-this-to-a-strong-secret
+
+# Option B: raw AES-256 key in base64 (32 bytes after decoding)
+# set CHAT_AES_KEY_B64=<base64-encoded-32-byte-key>
+```
+
+2. Start server first:
 
 ```bash
 python server/server.py
 ```
 
-2. Open one or more new terminals and start clients:
+3. Open one or more new terminals and start clients:
 
 ```bash
 python client/client.py
 ```
 
-3. Login with a valid username and password.
+4. Login with a valid username and password.
 
-4. Use client commands:
+5. Use client commands:
 
 - `/to <username> <message>` send direct message
 - `/approve <sender>` approve sender request
@@ -90,6 +102,8 @@ python client/client.py
 - `/quit` disconnect
 
 When a sender messages a receiver for the first time, the message is checked by IDS first, then held until the receiver approves.
+
+All command, auth, and chat payloads are sent as AES-GCM encrypted envelopes over the socket transport.
 
 ## Server Dashboard CRUD Commands
 
@@ -223,3 +237,22 @@ python server/server.py
 ```
 
 Important: no IDS can "detect anything" with 100% accuracy. Detection quality mainly depends on training data coverage and periodic retraining.
+
+## Streamlit Frontend
+
+This project includes a Streamlit UI with separate pages for server and client workflows:
+
+- `pages/1_Server_Dashboard.py`: start/stop server, live stats, user CRUD, logs
+- `pages/2_Client_Chat.py`: encrypted chat interface with left/right message bubbles
+
+Run the frontend from project root:
+
+```bash
+streamlit run streamlit_app.py
+```
+
+Then:
+
+1. Open **Server Dashboard** page and click **Start**.
+2. Open **Client Chat** page and connect with username/password.
+3. Send messages using the chat form.

@@ -83,3 +83,77 @@ timestamp | username | message | threat_type | severity | action_taken
 2026-04-08 11:24:04 | bob | to=naman | hii | none | none | pending_approval
 2026-04-08 11:24:31 | bob | to=naman | hii | none | none | pending_approval
 2026-04-08 11:24:44 | bob | to=naman | hii | none | none | delivered_after_approval
+2026-04-10 17:21:47 | naman | <joined> | none | none | accepted
+2026-04-10 17:24:39 | alice | <joined> | none | none | accepted
+2026-04-10 17:24:46 | alice | to=naman | hii | none | none | pending_approval
+2026-04-10 17:24:55 | alice | to=naman | hii | none | none | delivered_after_approval
+2026-04-10 17:25:37 | alice | to=naman | hii how are u ?? | none | none | delivered
+2026-04-10 17:26:29 | alice | to=naman | bro u are so stupid and just fuck off | cyberbullying | high | blocked
+2026-04-10 17:26:50 | alice | to=naman | chutiya hai kya bhai | none | none | delivered
+2026-04-10 17:27:06 | naman | to=alice | hii | none | none | pending_approval
+2026-04-10 17:27:17 | alice | to=naman | / deny | none | none | delivered
+2026-04-10 17:27:48 | naman | to=alice | hii | none | none | delivered_after_approval
+2026-04-10 17:28:13 | alice | to=naman | nikal laude phele hhi fursat mein nikal | none | none | delivered
+2026-04-10 17:29:21 | alice | to=naman | mujheeee gharrr jannaa hai so u fuck ooff | cyberbullying | high | blocked
+2026-04-10 17:30:02 | poorna | <joined> | none | none | accepted
+2026-04-10 17:30:21 | poorna | to=naman | hii | none | none | pending_approval
+2026-04-10 17:30:57 | poorna | to=naman | hii | none | none | delivered_after_approval
+2026-04-10 17:31:20 | poorna | to=naman | are you stupidddd / | none | none | delivered
+2026-04-10 17:31:32 | poorna | to=naman | are you stupid | cyberbullying | high | blocked
+2026-04-10 17:32:04 | poorna | to=naman | fuckoff bitch go die bicthhh i dont want to present | cyberbullying | high | blocked
+2026-04-10 17:32:21 | poorna | to=naman | stupid fuck | cyberbullying | high | blocked
+2026-04-10 17:32:51 | poorna | to=naman | chutiya hai kya lausde | none | none | delivered
+2026-04-10 17:33:06 | poorna | to=naman | laude* | none | none | delivered
+2026-04-10 17:33:31 | poorna | to=naman | stupid boy bye | cyberbullying | high | blocked
+2026-04-10 17:34:24 | alice | <left> | none | none | disconnect
+2026-04-10 17:34:24 | poorna | <left> | none | none | disconnect
+2026-04-12 22:42:51 | naman | <joined> | none | none | accepted
+2026-04-12 22:43:08 | poorna | <joined> | none | none | accepted
+2026-04-12 22:43:28 | poorna | to=naman | hii | none | none | pending_approval
+2026-04-12 22:43:39 | poorna | to=naman | hii | none | none | delivered_after_approval
+2026-04-12 22:43:51 | poorna | to=naman | hii ... | none | none | delivered
+2026-04-12 22:44:13 | poorna | to=naman | pratyush rapist ha | cyberbullying | medium | delivered_flagged
+2026-04-12 22:44:55 | poorna | to=naman | fucker go to hell | cyberbullying | high | blocked
+2026-04-12 22:45:16 | poorna | to=naman | stupid , go and do sucide | cyberbullying | high | blocked
+2026-04-13 01:56:51 | poorna | <left> | none | none | disconnect
+2026-04-13 13:44:16 | naman | <joined> | none | none | accepted
+2026-04-13 13:44:27 | poorna | <joined> | none | none | accepted
+2026-04-13 13:44:35 | poorna | to=naman | hii | none | none | pending_approval
+2026-04-13 13:46:52 | poorna | to=naman | stupid , go to hell | cyberbullying | high | blocked
+2026-04-13 13:49:21 | poorna | <left> | none | none | disconnect
+2026-04-16 02:17:03 | naman | <joined> | none | none | accepted
+2026-04-16 02:17:20 | poorna | <joined> | none | none | accepted
+2026-04-16 02:17:27 | poorna | to=naman | hii | none | none | pending_approval
+2026-04-16 02:17:36 | poorna | to=naman | hii | none | none | delivered_after_approval
+2026-04-16 02:21:42 | poorna | to=naman | hello | none | none | delivered
+2026-04-16 02:33:45 | poorna | <left> | none | none | disconnect
+2026-04-16 02:33:48 | naman | <left> | none | none | disconnect
+2026-04-16 02:52:02 | naman | <joined> | none | none | accepted
+2026-04-16 02:52:35 | poorna | <joined> | none | none | accepted
+2026-04-16 02:52:44 | poorna | to=naman | hii | none | none | pending_approval
+2026-04-16 02:53:00 | poorna | to=naman | hii | none | none | delivered_after_approval
+2026-04-16 02:53:14 | poorna | to=naman | hello | none | none | delivered
+2026-04-16 02:54:04 | poorna | to=naman | mother fucker go to hell | cyberbullying | high | blocked
+2026-04-16 02:54:46 | naman | to=poorna | hii | none | none | pending_approval
+2026-04-16 02:55:30 | bob | <joined> | none | none | accepted
+2026-04-16 02:55:38 | bob | to=poorna | hii | none | none | pending_approval
+2026-04-16 02:55:47 | naman | to=poorna | hii | none | none | delivered_after_approval
+2026-04-16 02:55:49 | bob | to=poorna | hii | none | none | delivered_after_approval
+2026-04-16 02:59:20 | alice | <joined> | none | none | accepted
+2026-04-16 02:59:28 | alice | to=bob | hii | none | none | pending_approval
+2026-04-16 02:59:36 | alice | to=bob | hii | none | none | delivered_after_approval
+2026-04-16 03:00:08 | alice | to=bob | hello mother fucker | cyberbullying | high | blocked
+2026-04-16 03:11:36 | naman | <joined> | none | none | accepted
+2026-04-16 03:13:37 | poorna | <joined> | none | none | accepted
+2026-04-16 03:14:54 | poorna | to=naman | hii | none | none | pending_approval
+2026-04-16 03:15:04 | poorna | to=naman | hii | none | none | delivered_after_approval
+2026-04-16 03:15:22 | naman | to=poorna | hello | none | none | pending_approval
+2026-04-16 03:15:33 | naman | to=poorna | hello | none | none | delivered_after_approval
+2026-04-16 03:18:38 | naman | to=poorna | how are u | none | none | delivered
+2026-04-16 03:20:06 | naman | to=poorna | wnelfkna | none | none | delivered
+2026-04-16 09:41:21 | naman | <joined> | none | none | accepted
+2026-04-16 09:41:46 | poorna | <joined> | none | none | accepted
+2026-04-16 09:41:54 | poorna | to=naman | hii | none | none | pending_approval
+2026-04-16 09:42:01 | poorna | to=naman | hii | none | none | delivered_after_approval
+2026-04-16 09:42:21 | poorna | to=naman | mother fucker | cyberbullying | high | blocked
+2026-04-16 09:44:10 | poorna | to=naman | hii | none | none | delivered

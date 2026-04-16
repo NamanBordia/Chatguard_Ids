@@ -10,8 +10,18 @@ import getpass
 import json
 import socket
 import threading
+from pathlib import Path
+import sys
+
+try:
+    from secure_channel import SecureChannelError, decrypt_payload, encrypt_payload, get_shared_key
+except ModuleNotFoundError:
+    # Support running as: python client/client.py
+    sys.path.append(str(Path(__file__).resolve().parent.parent))
+    from secure_channel import SecureChannelError, decrypt_payload, encrypt_payload, get_shared_key
 
 HOST = "127.0.0.1"
+# HOST = "10.247.226.221"
 PORT = 9009
 
 
@@ -19,16 +29,27 @@ def send_json(sock: socket.socket, payload: dict) -> None:
     sock.sendall((json.dumps(payload) + "\n").encode("utf-8"))
 
 
-def receiver_loop(reader) -> None:
+def send_secure_json(sock: socket.socket, payload: dict, key: bytes) -> None:
+    envelope = encrypt_payload(payload, key)
+    send_json(sock, envelope)
+
+
+def receiver_loop(reader, key: bytes) -> None:
     try:
         for line in reader:
             line = line.strip()
             if not line:
                 continue
             try:
-                payload = json.loads(line)
+                envelope = json.loads(line)
             except json.JSONDecodeError:
                 print("[CLIENT] Received malformed data from server.")
+                continue
+
+            try:
+                payload = decrypt_payload(envelope, key)
+            except SecureChannelError:
+                print("[CLIENT] Failed to decrypt server message.")
                 continue
 
             msg_type = payload.get("type")
@@ -74,7 +95,7 @@ def receiver_loop(reader) -> None:
         print("[CLIENT] Disconnected from server.")
 
 
-def authenticate(sock: socket.socket, reader) -> bool:
+def authenticate(sock: socket.socket, reader, key: bytes) -> bool:
     # Wait for auth_required prompt.
     line = reader.readline()
     if not line:
@@ -82,9 +103,15 @@ def authenticate(sock: socket.socket, reader) -> bool:
         return False
 
     try:
-        payload = json.loads(line)
+        envelope = json.loads(line)
     except json.JSONDecodeError:
         print("[AUTH] Unexpected auth response.")
+        return False
+
+    try:
+        payload = decrypt_payload(envelope, key)
+    except SecureChannelError:
+        print("[AUTH] Could not decrypt auth challenge.")
         return False
 
     if payload.get("type") == "auth_required":
@@ -96,7 +123,7 @@ def authenticate(sock: socket.socket, reader) -> bool:
     username = input("Username: ").strip()
     password = getpass.getpass("Password: ")
 
-    send_json(sock, {"username": username, "password": password})
+    send_secure_json(sock, {"username": username, "password": password}, key)
 
     result_line = reader.readline()
     if not result_line:
@@ -104,9 +131,15 @@ def authenticate(sock: socket.socket, reader) -> bool:
         return False
 
     try:
-        result = json.loads(result_line)
+        result_envelope = json.loads(result_line)
     except json.JSONDecodeError:
         print("[AUTH] Invalid auth result format.")
+        return False
+
+    try:
+        result = decrypt_payload(result_envelope, key)
+    except SecureChannelError:
+        print("[AUTH] Could not decrypt auth result.")
         return False
 
     if result.get("type") != "auth_result" or not result.get("success"):
@@ -119,6 +152,12 @@ def authenticate(sock: socket.socket, reader) -> bool:
 
 
 def start_client() -> None:
+    try:
+        key = get_shared_key()
+    except (ImportError, SecureChannelError) as exc:
+        print(f"[CLIENT] AES setup failed: {exc}")
+        return
+
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         sock.connect((HOST, PORT))
@@ -129,11 +168,11 @@ def start_client() -> None:
     try:
         reader = sock.makefile("r", encoding="utf-8")
 
-        if not authenticate(sock, reader):
+        if not authenticate(sock, reader, key):
             sock.close()
             return
 
-        receiver = threading.Thread(target=receiver_loop, args=(reader,), daemon=True)
+        receiver = threading.Thread(target=receiver_loop, args=(reader, key), daemon=True)
         receiver.start()
 
         print("[CLIENT] Commands:")
@@ -148,23 +187,23 @@ def start_client() -> None:
                 continue
 
             if msg.lower() == "/quit":
-                send_json(sock, {"type": "quit"})
+                send_secure_json(sock, {"type": "quit"}, key)
                 break
 
             if msg.lower() == "/users":
-                send_json(sock, {"type": "list_online"})
+                send_secure_json(sock, {"type": "list_online"}, key)
                 continue
 
             if msg.startswith("/approve "):
                 sender = msg.split(maxsplit=1)[1].strip()
                 if sender:
-                    send_json(sock, {"type": "approval_response", "sender": sender, "approve": True})
+                    send_secure_json(sock, {"type": "approval_response", "sender": sender, "approve": True}, key)
                 continue
 
             if msg.startswith("/deny "):
                 sender = msg.split(maxsplit=1)[1].strip()
                 if sender:
-                    send_json(sock, {"type": "approval_response", "sender": sender, "approve": False})
+                    send_secure_json(sock, {"type": "approval_response", "sender": sender, "approve": False}, key)
                 continue
 
             if msg.startswith("/to "):
@@ -172,7 +211,7 @@ def start_client() -> None:
                 if len(parts) < 3:
                     print("[CLIENT] Usage: /to <username> <message>")
                     continue
-                send_json(sock, {"type": "direct", "to": parts[1], "message": parts[2]})
+                send_secure_json(sock, {"type": "direct", "to": parts[1], "message": parts[2]}, key)
                 continue
 
             print("[CLIENT] Unknown command. Use /to, /approve, /deny, /users, /quit.")

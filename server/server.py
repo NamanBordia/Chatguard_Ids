@@ -10,28 +10,53 @@ import json
 import socket
 import threading
 from collections import defaultdict
+from pathlib import Path
+import sys
 from typing import Dict, Tuple
 
-from auth import (
-    create_user,
-    delete_user,
-    get_user_role,
-    init_db,
-    list_known_users,
-    list_users,
-    update_user_password,
-    verify_credentials,
-)
-from detection import detect_all, initialize_detection_engine
-from logger import log_event
+try:
+    from secure_channel import SecureChannelError, decrypt_payload, encrypt_payload, get_shared_key
+except ModuleNotFoundError:
+    # Support running as: python server/server.py
+    sys.path.append(str(Path(__file__).resolve().parent.parent))
+    from secure_channel import SecureChannelError, decrypt_payload, encrypt_payload, get_shared_key
+
+try:
+    from auth import (
+        create_user,
+        delete_user,
+        get_user_role,
+        init_db,
+        list_known_users,
+        list_users,
+        update_user_password,
+        verify_credentials,
+    )
+    from detection import detect_all, initialize_detection_engine
+    from logger import log_event
+except ModuleNotFoundError:
+    # Support importing as module path: from server import server
+    from server.auth import (
+        create_user,
+        delete_user,
+        get_user_role,
+        init_db,
+        list_known_users,
+        list_users,
+        update_user_password,
+        verify_credentials,
+    )
+    from server.detection import detect_all, initialize_detection_engine
+    from server.logger import log_event
 
 HOST = "127.0.0.1"
+# HOST = "0.0.0.0"
 PORT = 9009
 
 SEVERITY_ORDER = {"low": 1, "medium": 2, "high": 3}
 SEVERITY_SCORE = {"low": 1, "medium": 2, "high": 4}
 
-clients: Dict[str, Tuple[socket.socket, threading.Lock, str]] = {}
+clients: Dict[str, Tuple[socket.socket, threading.Lock, str, bytes]] = {}
 clients_lock = threading.Lock()
 state_lock = threading.Lock()
 
@@ -52,13 +77,26 @@ def send_json(conn: socket.socket, payload: dict, lock: threading.Lock | None = 
         pass
 
 
+def send_secure_json(
+    conn: socket.socket,
+    payload: dict,
+    key: bytes,
+    lock: threading.Lock | None = None,
+) -> None:
+    try:
+        envelope = encrypt_payload(payload, key)
+    except SecureChannelError:
+        return
+    send_json(conn, envelope, lock)
+
+
 def send_to_user(username: str, payload: dict) -> bool:
     with clients_lock:
         record = clients.get(username)
     if not record:
         return False
-    conn, conn_lock, _role = record
-    send_json(conn, payload, conn_lock)
+    conn, conn_lock, _role, aes_key = record
+    send_secure_json(conn, payload, aes_key, conn_lock)
     return True
 
 
@@ -108,14 +146,15 @@ def update_risk(username: str, findings: list[dict]) -> int:
     return user_risk_scores[username]
 
 
-def authenticate_client(conn: socket.socket, conn_lock: threading.Lock, reader) -> tuple[str | None, str]:
-    send_json(
+def authenticate_client(conn: socket.socket, conn_lock: threading.Lock, reader, aes_key: bytes) -> tuple[str | None, str]:
+    send_secure_json(
         conn,
         {
             "type": "auth_required",
             "message": "Login required. Send username and password.",
             "known_users": list_known_users(),
         },
+        aes_key,
         conn_lock,
     )
 
@@ -124,25 +163,31 @@ def authenticate_client(conn: socket.socket, conn_lock: threading.Lock, reader) 
         return None, "user"
 
     try:
-        payload = json.loads(line)
+        envelope = json.loads(line)
     except json.JSONDecodeError:
-        send_json(conn, {"type": "auth_result", "success": False, "message": "Invalid auth format."}, conn_lock)
+        send_secure_json(conn, {"type": "auth_result", "success": False, "message": "Invalid auth format."}, aes_key, conn_lock)
+        return None, "user"
+
+    try:
+        payload = decrypt_payload(envelope, aes_key)
+    except SecureChannelError:
+        send_secure_json(conn, {"type": "auth_result", "success": False, "message": "Could not decrypt auth payload."}, aes_key, conn_lock)
         return None, "user"
 
     username = str(payload.get("username", "")).strip()
     password = str(payload.get("password", ""))
 
     if not username or not password or not verify_credentials(username, password):
-        send_json(conn, {"type": "auth_result", "success": False, "message": "Authentication failed."}, conn_lock)
+        send_secure_json(conn, {"type": "auth_result", "success": False, "message": "Authentication failed."}, aes_key, conn_lock)
         return None, "user"
 
     with clients_lock:
         if username in clients:
-            send_json(conn, {"type": "auth_result", "success": False, "message": "User already connected."}, conn_lock)
+            send_secure_json(conn, {"type": "auth_result", "success": False, "message": "User already connected."}, aes_key, conn_lock)
             return None, "user"
 
     role = get_user_role(username)
-    send_json(
+    send_secure_json(
         conn,
         {
             "type": "auth_result",
@@ -150,6 +195,7 @@ def authenticate_client(conn: socket.socket, conn_lock: threading.Lock, reader) 
             "message": f"Welcome, {username}!",
             "role": role,
         },
+        aes_key,
         conn_lock,
     )
     return username, role
@@ -260,16 +306,25 @@ def client_handler(conn: socket.socket, addr: tuple[str, int]) -> None:
     conn_lock = threading.Lock()
     username = None
     user_role = "user"
+    try:
+        aes_key = get_shared_key()
+    except (ImportError, SecureChannelError):
+        try:
+            conn.close()
+        except OSError:
+            pass
+        return
+
     reader = conn.makefile("r", encoding="utf-8")
 
     try:
-        username, user_role = authenticate_client(conn, conn_lock, reader)
+        username, user_role = authenticate_client(conn, conn_lock, reader, aes_key)
         if not username:
             conn.close()
             return
 
         with clients_lock:
-            clients[username] = (conn, conn_lock, user_role)
+            clients[username] = (conn, conn_lock, user_role, aes_key)
 
         print(f"[JOIN] {username} ({user_role}) connected from {addr[0]}:{addr[1]}")
         log_event(username, "<joined>", "none", "accepted", "none")
@@ -280,9 +335,15 @@ def client_handler(conn: socket.socket, addr: tuple[str, int]) -> None:
                 continue
 
             try:
-                payload = json.loads(line)
+                envelope = json.loads(line)
             except json.JSONDecodeError:
-                send_json(conn, {"type": "alert", "level": "warning", "message": "Invalid message format."}, conn_lock)
+                send_secure_json(conn, {"type": "alert", "level": "warning", "message": "Invalid message format."}, aes_key, conn_lock)
+                continue
+
+            try:
+                payload = decrypt_payload(envelope, aes_key)
+            except SecureChannelError:
+                send_secure_json(conn, {"type": "alert", "level": "warning", "message": "Could not decrypt message."}, aes_key, conn_lock)
                 continue
 
             msg_type = str(payload.get("type", "")).strip()
@@ -293,14 +354,14 @@ def client_handler(conn: socket.socket, addr: tuple[str, int]) -> None:
             if msg_type == "list_online":
                 with clients_lock:
                     online = sorted(clients.keys())
-                send_json(conn, {"type": "user_list", "online": online}, conn_lock)
+                send_secure_json(conn, {"type": "user_list", "online": online}, aes_key, conn_lock)
                 continue
 
             if msg_type == "direct":
                 receiver = str(payload.get("to", "")).strip()
                 message = str(payload.get("message", "")).strip()
                 if not receiver or not message:
-                    send_json(conn, {"type": "alert", "level": "warning", "message": "Use /to <username> <message>."}, conn_lock)
+                    send_secure_json(conn, {"type": "alert", "level": "warning", "message": "Use /to <username> <message>."}, aes_key, conn_lock)
                     continue
                 process_direct_message(username, receiver, message)
                 continue
@@ -309,12 +370,12 @@ def client_handler(conn: socket.socket, addr: tuple[str, int]) -> None:
                 sender = str(payload.get("sender", "")).strip()
                 approve = bool(payload.get("approve", False))
                 if not sender:
-                    send_json(conn, {"type": "alert", "level": "warning", "message": "Invalid approval response."}, conn_lock)
+                    send_secure_json(conn, {"type": "alert", "level": "warning", "message": "Invalid approval response."}, aes_key, conn_lock)
                     continue
                 process_approval_response(username, sender, approve)
                 continue
 
-            send_json(conn, {"type": "alert", "level": "warning", "message": "Unknown command type."}, conn_lock)
+            send_secure_json(conn, {"type": "alert", "level": "warning", "message": "Unknown command type."}, aes_key, conn_lock)
 
     except (ConnectionResetError, OSError):
         pass
